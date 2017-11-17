@@ -2,6 +2,8 @@ package xpathtransform.test
 
 import edu.ncrn.cornell.xml.io.DomLoaders
 import edu.ncrn.cornell.xml.xpath.transform.MutatingTransforms
+import edu.ncrn.cornell.xml.extra.DocumentExtra._
+
 
 import scala.util.{Failure, Success}
 
@@ -16,11 +18,24 @@ object Main{
   def main( args: Array[String] ): Unit = {
     println( Console.GREEN ++ "Executing xpathtransform.test" ++ Console.RESET )
 
-    println("running simple tests on xml (shiporder.xm)")
+    println("running simple tests on xml (shiporder.xml)")
     val shipOrderXmlStream = this.getClass.getResourceAsStream("/shiporder.xml")
     val shipOrderDocTry = DomLoaders.loadXMLFromStream(shipOrderXmlStream)
     shipOrderDocTry match {
-      case Success(shipOrderDoc) => ()
+      case Success(shipOrderDoc) =>
+        val shipOrderDocMod = shipOrderDoc.docClone()
+        assert(
+          !(shipOrderDocMod eq shipOrderDoc),
+          Some("cloned docs are referentially equal!")
+        )
+        assert( // Should be the same as the above test
+          !shipOrderDocMod.isSameNode(shipOrderDoc),
+          Some("cloned docs are referentially equal!")
+        )
+        assert(
+          shipOrderDocMod.isEqualNode(shipOrderDoc),
+          Some("cloned docs are not structurally equal!")
+        )
       case Failure(ex) => testFailure(Some(s"Couldn't load ship order xml file: $ex"))
     }
 

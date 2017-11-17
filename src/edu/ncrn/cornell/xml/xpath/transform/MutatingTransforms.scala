@@ -1,5 +1,7 @@
 package edu.ncrn.cornell.xml.xpath.transform
 
+import edu.ncrn.cornell.xml.extra.NodeListExtra._
+
 import org.w3c.dom._
 import javax.xml.xpath._
 
@@ -41,11 +43,4 @@ object MutatingTransforms {
   def makeXpath(xpathString: String)(implicit xpFact: XPathFactory): Try[XPathExpression] =
     Try(xpFact.newXPath().compile(xpathString))
 
-  implicit class NodeListExtra(val nodeList: NodeList) extends AnyVal {
-    def toArray(): Array[Node] = {
-      val nlArray: Array[Node] = Array.fill[Node](nodeList.getLength)(null)
-      (0 until nodeList.getLength).foreach(ii => nlArray(ii) = nodeList.item(ii))
-      nlArray
-    }
-  }
 }
