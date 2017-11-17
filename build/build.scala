@@ -1,0 +1,28 @@
+package xpathtransform_build
+import cbt._
+class Build(val context: Context) extends BaseBuild with CommandLineOverrides {
+
+  //override val defaultScalaVersion  = "2.12.4"
+
+  val kantanXpathVersion = "0.3.0"
+
+  override def dependencies =
+    super.dependencies ++ // don't forget super.dependencies here for scala-library, etc.
+    Seq(
+      // source dependency
+      // DirectoryDependency( projectDirectory ++ "/subProject" )
+    ) ++
+    // pick resolvers explicitly for individual dependencies (and their transitive dependencies)
+    Resolver( mavenCentral, sonatypeReleases ).bind(
+      // CBT-style Scala dependencies
+      // ScalaDependency( "com.lihaoyi", "ammonite-ops", "0.5.5" )
+      // MavenDependency( "com.lihaoyi", "ammonite-ops_2.11", "0.5.5" )
+      ScalaDependency( "com.nrinaudo", "kantan.xpath",      kantanXpathVersion ),
+      ScalaDependency( "com.nrinaudo", "kantan.xpath-cats", kantanXpathVersion ),
+      ScalaDependency( "com.nrinaudo", "kantan.xpath-refined", kantanXpathVersion )
+
+      // SBT-style dependencies
+      // "com.lihaoyi" %% "ammonite-ops" % "0.5.5"
+      // "com.lihaoyi" % "ammonite-ops_2.11" % "0.5.5"
+    )
+}
