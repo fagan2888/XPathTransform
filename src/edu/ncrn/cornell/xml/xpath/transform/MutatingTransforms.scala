@@ -15,29 +15,34 @@ object MutatingTransforms {
 
 
   def removeNodes(doc: Document, nodeLocation: String): Unit = {
-    val newDoc: Try[Unit] = for {
+    for {
       childXpath <- makeXpath(nodeLocation)
       parentXpath <- makeXpath(nodeLocation + "/..")
-      parentNode <- parentXpath.evaluate(doc, XPathConstants.NODE) match {
-        case Some(pn: Node) => Success(pn)
-        case None => Failure(throw new XPathException(
+      parentNodes <- Option(parentXpath.evaluate(doc, XPathConstants.NODESET)) match {
+        case Some(pn: NodeList) => Success(pn)
+        case None =>
+          Failure(throw new XPathException(
           s"WARN: no parent node found for $nodeLocation"
         ))
       }
     } yield {
-        childXpath.evaluate(doc, XPathConstants.NODESET) match {
+        Option(childXpath.evaluate(doc, XPathConstants.NODESET)) match {
           case Some(nodeList: NodeList) =>
-            println("DEBUG: found nodes to remove")
             val nodeArray = nodeList.toArray()
+            //FIXME: this iterates over all leafs to remove, even if they aren't
+            //FIXME: directly children:
             nodeArray.foreach{node: Node =>
-              parentNode.removeChild(node)
+              parentNodes.toArray().foreach { pn =>
+                if (pn.getChildNodes.toArray().contains(node)) {
+                  pn.removeChild(node)
+                }
+              }
             }
           case _ =>
             println(s"WARN: no nodes found at $nodeLocation")
         }
       }
   }
-
 
 
   def makeXpath(xpathString: String)(implicit xpFact: XPathFactory): Try[XPathExpression] =

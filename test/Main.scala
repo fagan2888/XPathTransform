@@ -36,6 +36,17 @@ object Main{
           shipOrderDocMod.isEqualNode(shipOrderDoc),
           Some("cloned docs are not structurally equal!")
         )
+
+        val quantityXpath = "/shiporder/item/quantity"
+        MutatingTransforms.removeNodes(shipOrderDocMod, quantityXpath)
+
+        assert(
+          !shipOrderDocMod.isEqualNode(shipOrderDoc),
+          Some("modified docs are structurally equal!")
+        )
+        val shipOrderDocModString = shipOrderDocMod.toXmlString().get
+        assert(!shipOrderDocModString.contains("quantity"))
+        println(shipOrderDocMod.toXmlString())
       case Failure(ex) => testFailure(Some(s"Couldn't load ship order xml file: $ex"))
     }
 
